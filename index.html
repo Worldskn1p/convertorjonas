@@ -1,0 +1,262 @@
+<html><head><base href="." />
+<title>Convierte con Jonas - Conversor de Sistemas Numéricos</title>
+<style>
+:root {
+  --primary: #2c3e50;
+  --secondary: #3498db;
+  --accent: #e74c3c;
+  --light: #ecf0f1;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--light), #bdc3c7);
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+h1 {
+  color: var(--primary);
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2.5em;
+}
+
+.converter-container {
+  display: grid;
+  gap: 20px;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--primary);
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid var(--secondary);
+  border-radius: 5px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+button {
+  background-color: var(--secondary);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: var(--accent);
+}
+
+.error {
+  color: var(--accent);
+  font-size: 14px;
+  margin-top: 5px;
+  display: none;
+}
+
+.result {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: var(--light);
+  border-radius: 5px;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.shake {
+  animation: shake 0.3s ease-in-out;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🔢 Convierte con Jonas</h1>
+  
+  <div class="converter-container">
+    <div class="input-group">
+      <label for="decimal">Número Decimal:</label>
+      <input type="text" id="decimal" placeholder="Ingresa un número decimal">
+      <div class="error" id="decimal-error">Por favor ingresa un número decimal válido</div>
+    </div>
+
+    <div class="input-group">
+      <label for="binary">Número Binario:</label>
+      <input type="text" id="binary" placeholder="Ingresa un número binario">
+      <div class="error" id="binary-error">Por favor ingresa un número binario válido (solo 0s y 1s)</div>
+    </div>
+
+    <div class="input-group">
+      <label for="hexadecimal">Número Hexadecimal:</label>
+      <input type="text" id="hexadecimal" placeholder="Ingresa un número hexadecimal">
+      <div class="error" id="hex-error">Por favor ingresa un número hexadecimal válido</div>
+    </div>
+
+    <div class="input-group">
+      <label for="octal">Número Octal:</label>
+      <input type="text" id="octal" placeholder="Ingresa un número octal">
+      <div class="error" id="octal-error">Por favor ingresa un número octal válido</div>
+    </div>
+
+    <button onclick="convertAll()">Convertir</button>
+
+    <div class="result" id="result">
+      Los resultados aparecerán aquí...
+    </div>
+  </div>
+</div>
+
+<script>
+function convertAll() {
+  const decimalInput = document.getElementById('decimal');
+  const binaryInput = document.getElementById('binary');
+  const hexInput = document.getElementById('hexadecimal');
+  const octalInput = document.getElementById('octal');
+  const result = document.getElementById('result');
+
+  // Reset errors
+  document.querySelectorAll('.error').forEach(error => error.style.display = 'none');
+
+  let baseNumber;
+  let baseSystem;
+
+  // Determine which input field has a value
+  if (decimalInput.value) {
+    if (!isValidDecimal(decimalInput.value)) {
+      showError('decimal-error');
+      return;
+    }
+    baseNumber = parseInt(decimalInput.value, 10);
+    baseSystem = 10;
+  } else if (binaryInput.value) {
+    if (!isValidBinary(binaryInput.value)) {
+      showError('binary-error');
+      return;
+    }
+    baseNumber = parseInt(binaryInput.value, 2);
+    baseSystem = 2;
+  } else if (hexInput.value) {
+    if (!isValidHex(hexInput.value)) {
+      showError('hex-error');
+      return;
+    }
+    baseNumber = parseInt(hexInput.value, 16);
+    baseSystem = 16;
+  } else if (octalInput.value) {
+    if (!isValidOctal(octalInput.value)) {
+      showError('octal-error');
+      return;
+    }
+    baseNumber = parseInt(octalInput.value, 8);
+    baseSystem = 8;
+  } else {
+    result.innerHTML = "Por favor ingresa un número en alguno de los campos";
+    return;
+  }
+
+  // Convert to all systems
+  const conversions = {
+    decimal: baseNumber.toString(10),
+    binary: baseNumber.toString(2),
+    hexadecimal: baseNumber.toString(16).toUpperCase(),
+    octal: baseNumber.toString(8)
+  };
+
+  // Clear all inputs except the source
+  if (baseSystem !== 10) decimalInput.value = '';
+  if (baseSystem !== 2) binaryInput.value = '';
+  if (baseSystem !== 16) hexInput.value = '';
+  if (baseSystem !== 8) octalInput.value = '';
+
+  // Generate explanations
+  const explanations = {
+    decimal: `El número decimal ${conversions.decimal} es la representación en base 10, usando los dígitos del 0 al 9. Es el sistema que usamos cotidianamente.`,
+    binary: `El número binario ${conversions.binary} es la representación en base 2, usando solo 0s y 1s. Cada posición representa una potencia de 2 (2⁰, 2¹, 2², etc.).`,
+    hexadecimal: `El número hexadecimal ${conversions.hexadecimal} es la representación en base 16, usando dígitos del 0-9 y letras A-F. Es común en programación por su facilidad para representar bytes.`,
+    octal: `El número octal ${conversions.octal} es la representación en base 8, usando dígitos del 0 al 7. Cada dígito representa una potencia de 8.`
+  };
+
+  // Fill in the result with explanations
+  result.innerHTML = `
+    <strong>Resultados de la conversión:</strong><br><br>
+    Decimal: ${conversions.decimal}<br>
+    <em style="font-size: 0.9em; color: #666;">${explanations.decimal}</em><br><br>
+    Binario: ${conversions.binary}<br>
+    <em style="font-size: 0.9em; color: #666;">${explanations.binary}</em><br><br>
+    Hexadecimal: ${conversions.hexadecimal}<br>
+    <em style="font-size: 0.9em; color: #666;">${explanations.hexadecimal}</em><br><br>
+    Octal: ${conversions.octal}<br>
+    <em style="font-size: 0.9em; color: #666;">${explanations.octal}</em>`;
+}
+
+function isValidDecimal(num) {
+  return /^\d+$/.test(num);
+}
+
+function isValidBinary(num) {
+  return /^[01]+$/.test(num);
+}
+
+function isValidHex(num) {
+  return /^[0-9A-Fa-f]+$/.test(num);
+}
+
+function isValidOctal(num) {
+  return /^[0-7]+$/.test(num);
+}
+
+function showError(errorId) {
+  const errorElement = document.getElementById(errorId);
+  errorElement.style.display = 'block';
+  errorElement.parentElement.querySelector('input').classList.add('shake');
+  setTimeout(() => {
+    errorElement.parentElement.querySelector('input').classList.remove('shake');
+  }, 500);
+}
+
+// Limpiar otros campos cuando se escribe en uno
+document.querySelectorAll('input').forEach(input => {
+  input.addEventListener('input', function() {
+    document.querySelectorAll('input').forEach(otherInput => {
+      if (otherInput !== input) {
+        otherInput.value = '';
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>
